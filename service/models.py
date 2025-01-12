@@ -1,18 +1,3 @@
-Models for Product Demo Service
-
-All of the models are stored in this module
-
-Models
-------
-Product - A Product used in the Product Store
-
-Attributes:
------------
-name (string) - the name of the product
-description (string) - the description the product belongs to (i.e., dog, cat)
-available (boolean) - True for products that are available for adoption
-
-"""
 import logging
 from enum import Enum
 from decimal import Decimal
