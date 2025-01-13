@@ -1,3 +1,7 @@
+"""
+This module contains the definition of the Product model, the Category enum, and associated
+helper functions and classes for database operations using SQLAlchemy.
+"""
 import logging
 from enum import Enum
 from decimal import Decimal
