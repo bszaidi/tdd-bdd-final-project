@@ -12,7 +12,7 @@ import os
 import logging
 import unittest
 from decimal import Decimal
-from service.models import Product, Category, db
+from service.models import Product, Category, db, DataValidationError
 from service import app
 from tests.factories import ProductFactory
 
@@ -117,6 +117,20 @@ class TestProductModel(unittest.TestCase):
         self.assertEqual(len(products), 1)
         self.assertEqual(products[0].id, original_id)
         self.assertEqual(products[0].description, "testing")
+    
+    def test_update_product_without_id(self):
+        """It should raise a DataValidationError when updating a Product without an id"""
+        product = ProductFactory()
+        product.id = None  # Ensure the product has no ID
+        # Attempt to update the product and verify it raises the correct exception
+        with self.assertRaises(DataValidationError) as context:
+            product.update()
+        self.assertEqual(str(context.exception), "Update called with empty ID field")
+
+        # Verify that no products exist in the database
+        products = Product.all()
+        self.assertEqual(len(products), 0)
+
 
     def test_delete_a_product(self):
         """It should Delete a Product"""
@@ -174,3 +188,21 @@ class TestProductModel(unittest.TestCase):
         self.assertEqual(found.count(), count)
         for product in found:
             self.assertEqual(product.category, category)
+
+    def test_find_by_price(self):
+        """It should Find Products by Price"""
+        # Create a batch of products with different prices
+        products = ProductFactory.create_batch(10)
+        for product in products:
+            product.create()
+        # Select a price from one of the products
+        price = products[0].price
+        # Count how many products have this price
+        count = len([product for product in products if product.price == price])
+        # Use the `find_by_price` method
+        found = Product.find_by_price(price)
+        # Verify the number of products found matches the count
+        self.assertEqual(found.count(), count)
+        # Verify all products found have the correct price
+        for product in found:
+            self.assertEqual(Decimal(product.price), Decimal(price))
